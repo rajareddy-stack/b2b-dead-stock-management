@@ -1,0 +1,10 @@
+/target/
+/data/
+/apache-maven-*/
+/.idea/
+*.iml
+*.log
+*.mv.db
+*.trace.db
+.env
+.env.*
