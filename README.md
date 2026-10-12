@@ -1,4 +1,4 @@
-# DEAD STOCK MARKETPLACE - B2B Surplus Web Application
+# B2B Dead Stock Management
 > **Connecting Sellers | Buyers | Sustainable Supply Chains**  
 > Built with **Java 17, Spring Boot 3, Spring Data JPA, Spring Security, MySQL / H2, Thymeleaf, and Bootstrap 5**.
 
@@ -42,40 +42,19 @@ Rather than discarding dormant materials into landfills, sellers liquidate dead 
 
 ```
 ttproject/
-├── pom.xml
-├── apache-maven-3.9.6/                      # Bundled Maven runtime
-└── src/
-    ├── main/
-    │   ├── java/com/deadstock/marketplace/
-    │   │   ├── DeadStockApplication.java
-    │   │   ├── config/                      # SecurityConfig, OpenApiConfig, DataInitializer
-    │   │   ├── controller/
-    │   │   │   ├── api/                     # REST Controllers (Auth, Listings, Offers, Admin)
-    │   │   │   └── web/                     # Thymeleaf Web Controllers (Home, Seller, Buyer, Admin, Profile)
-    │   │   ├── dto/                         # DTOs & Form Objects
-    │   │   ├── model/                       # JPA Entities (User, BusinessProfile, Category, Listing, Offer, Notification)
-    │   │   ├── model/enums/                 # Role, OfferStatus, ListingStatus, VerificationStatus, ItemCondition
-    │   │   ├── repository/                  # Spring Data JPA Repositories
-    │   │   └── service/                     # UserService, ListingService, OfferService, AdminService, NotificationService
-    │   └── resources/
-    │       ├── application.properties       # Default H2 database configuration
-    │       ├── application-mysql.properties # MySQL 8.0 configuration profile
-    │       ├── schema.sql                   # Database table DDL script
-    │       ├── static/
-    │       │   └── css/styles.css           # B2B Portal Custom Styles
-    │       └── templates/                   # Bootstrap 5 + Thymeleaf HTML Views
-    │           ├── layout/base.html
-    │           ├── home.html
-    │           ├── auth/login.html & register.html
-    │           ├── listings/browse.html & detail.html
-    │           ├── seller/dashboard.html, create-listing.html, incoming-offers.html
-    │           ├── buyer/dashboard.html
-    │           ├── admin/dashboard.html
-    │           └── profile/view.html & notifications.html
-    └── test/
-        └── java/com/deadstock/marketplace/
-            └── DeadStockApplicationTests.java
+├── backend/
+│   ├── pom.xml
+│   └── src/
+│       ├── main/java/com/deadstock/marketplace/  # Spring Boot API, web controllers, services and models
+│       ├── main/resources/                       # Application configuration and database schema
+│       └── test/java/                            # Backend and rendered-view tests
+└── frontend/
+    └── src/main/resources/
+        ├── templates/                            # Thymeleaf pages and shared layout
+        └── static/css/                            # Shared frontend styles
 ```
+
+The frontend and backend have separate source directories in this repository. The frontend uses server-rendered Thymeleaf templates, so it is not an independently deployable application: Maven includes its templates and static assets in the Spring Boot runtime classpath.
 
 ---
 
@@ -127,21 +106,22 @@ The application automatically seeds realistic data, sample categories, active li
 
 ### Prerequisites
 - **Java 17** or higher installed (`java -version`)
+- **Apache Maven 3.9+** installed (`mvn -version`)
 - (Optional) **MySQL 8.0** if you wish to run against MySQL rather than the default embedded H2 database.
 
 ### Option A: Run with Embedded H2 Database (Recommended for Grading & Demo)
 No database setup is required. The database persists automatically in `./data/deadstockdb`.
 
 ```powershell
-# In PowerShell inside the project directory:
-.\apache-maven-3.9.6\bin\mvn.cmd spring-boot:run
+# From the repository root:
+mvn -f backend/pom.xml spring-boot:run
 ```
 
 Once started:
 - **Web Application**: `http://localhost:8080/`
 - **Swagger / OpenAPI Documentation**: `http://localhost:8080/swagger-ui.html`
 - **H2 Database Console**: `http://localhost:8080/h2-console`
-  - JDBC URL: `jdbc:h2:file:./data/deadstockdb`
+  - JDBC URL: `jdbc:h2:file:./backend/data/deadstockdb`
   - User: `sa`
   - Password: *(leave blank)*
 
@@ -150,7 +130,7 @@ Once started:
    ```sql
    CREATE DATABASE deadstock_db;
    ```
-2. Check/update your MySQL username and password in `src/main/resources/application-mysql.properties`:
+2. Check/update your MySQL username and password in `backend/src/main/resources/application-mysql.properties`:
    ```properties
    spring.datasource.url=jdbc:mysql://localhost:3306/deadstock_db?createDatabaseIfNotExist=true&useSSL=false
    spring.datasource.username=root
@@ -158,8 +138,16 @@ Once started:
    ```
 3. Run with the MySQL Spring profile:
    ```powershell
-   .\apache-maven-3.9.6\bin\mvn.cmd spring-boot:run -Dspring-boot.run.profiles=mysql
+   mvn -f backend/pom.xml spring-boot:run -Dspring-boot.run.profiles=mysql
    ```
+
+### Run tests
+
+```powershell
+mvn -f backend/pom.xml test
+```
+
+The default demo accounts and passwords are for local development only. Replace or disable them before deploying the application to a public environment.
 
 ---
 
